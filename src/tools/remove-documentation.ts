@@ -77,7 +77,7 @@ export class RemoveDocumentationTool extends BaseTool {
         if (error.message.includes('unauthorized')) {
           throw new McpError(
             ErrorCode.InvalidRequest,
-            'Failed to authenticate with Qdrant cloud while removing documentation'
+            'Failed to authenticate with Qdrant while removing documentation'
           );
         }
 
@@ -87,7 +87,7 @@ export class RemoveDocumentationTool extends BaseTool {
         ) {
           throw new McpError(
             ErrorCode.InternalError,
-            'Connection to Qdrant cloud failed while removing documentation'
+            'Connection to Qdrant failed while removing documentation'
           );
         }
       }

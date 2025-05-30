@@ -132,7 +132,7 @@ export class ListSourcesHandler extends BaseHandler {
         if (error.message.includes('unauthorized')) {
           throw new McpError(
             ErrorCode.InvalidRequest,
-            'Failed to authenticate with Qdrant cloud while listing sources'
+            'Failed to authenticate with Qdrant while listing sources'
           );
         }
 
@@ -142,7 +142,7 @@ export class ListSourcesHandler extends BaseHandler {
         ) {
           throw new McpError(
             ErrorCode.InternalError,
-            'Connection to Qdrant cloud failed while listing sources'
+            'Connection to Qdrant failed while listing sources'
           );
         }
       }

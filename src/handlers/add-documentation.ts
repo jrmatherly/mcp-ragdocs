@@ -43,7 +43,7 @@ export class AddDocumentationHandler extends BaseHandler {
             if (error.message.includes('unauthorized')) {
               throw new McpError(
                 ErrorCode.InvalidRequest,
-                'Failed to authenticate with Qdrant cloud while adding documents'
+                'Failed to authenticate with Qdrant while adding documents'
               );
             }
 
@@ -53,7 +53,7 @@ export class AddDocumentationHandler extends BaseHandler {
             ) {
               throw new McpError(
                 ErrorCode.InternalError,
-                'Connection to Qdrant cloud failed while adding documents'
+                'Connection to Qdrant failed while adding documents'
               );
             }
           }

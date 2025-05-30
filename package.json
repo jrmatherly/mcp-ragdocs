@@ -1,6 +1,6 @@
 {
   "name": "@jrmatherly/mcp-ragdocs",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "An MCP server for semantic documentation search and retrieval using vector databases to augment LLM capabilities.",
   "private": false,
   "type": "module",

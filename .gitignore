@@ -380,6 +380,9 @@ config.local.*
 # Qdrant snapshots (large files)
 *.snapshot
 
+# Queue file
+queue.txt
+
 # =================================================================
 # WHAT TO KEEP (Important - these should NOT be ignored)
 # =================================================================

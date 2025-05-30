@@ -74,7 +74,7 @@ export class ListSourcesTool extends BaseTool {
         if (error.message.includes('unauthorized')) {
           throw new McpError(
             ErrorCode.InvalidRequest,
-            'Failed to authenticate with Qdrant cloud while listing sources'
+            'Failed to authenticate with Qdrant while listing sources'
           );
         }
 
@@ -84,7 +84,7 @@ export class ListSourcesTool extends BaseTool {
         ) {
           throw new McpError(
             ErrorCode.InternalError,
-            'Connection to Qdrant cloud failed while listing sources'
+            'Connection to Qdrant failed while listing sources'
           );
         }
       }

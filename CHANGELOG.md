@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.4.1] - 2025-05-30
+
+### Bug Fixes and Improvements
+
+- Fixed Azure OpenAI embedding generation
+  - Properly configured embedding model selection for Azure OpenAI
+  - Updated client initialization to handle model deployments correctly
+  - Added better error handling for embedding generation failures
+
+- Enhanced debugging capabilities
+  - Added comprehensive debug utility for component testing
+  - Implemented file-based logging for better diagnostics
+  - Added proper resource cleanup and error handling
+
 ## [1.4.0] - 2025-05-30
 
 ### Infrastructure and DevOps Improvements

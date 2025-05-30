@@ -14,7 +14,7 @@ class RagDocsServer {
     this.server = new Server(
       {
         name: 'mcp-ragdocs',
-        version: '1.4.0',
+        version: '1.4.1',
       },
       {
         capabilities: {

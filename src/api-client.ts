@@ -54,7 +54,7 @@ export class ApiClient {
         apiKey: AZURE_OPENAI_KEY,
         endpoint: AZURE_OPENAI_ENDPOINT,
         apiVersion: AZURE_OPENAI_API_VERSION,
-        deployment: AZURE_OPENAI_DEPLOYMENT,
+        // Don't specify a default deployment here - we'll specify the appropriate model when calling the API
       });
     } else if (OPENAI_API_KEY) {
       // Standard OpenAI client initialization
@@ -90,7 +90,7 @@ export class ApiClient {
       try {
         const response = await this.azureOpenaiClient.embeddings.create({
           input: text,
-          model: AZURE_OPENAI_DEPLOYMENT, // The deployment name is used as the model name for Azure
+          model: EMBEDDING_MODEL, // Use the embedding model, not the chat completion model
         });
         return response.data[0].embedding;
       } catch (error) {

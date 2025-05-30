@@ -51,7 +51,7 @@ export class SearchDocumentationHandler extends BaseHandler {
         if (error.message.includes('unauthorized')) {
           throw new McpError(
             ErrorCode.InvalidRequest,
-            'Failed to authenticate with Qdrant cloud while searching'
+            'Failed to authenticate with Qdrant while searching'
           );
         }
 
@@ -61,7 +61,7 @@ export class SearchDocumentationHandler extends BaseHandler {
         ) {
           throw new McpError(
             ErrorCode.InternalError,
-            'Connection to Qdrant cloud failed while searching'
+            'Connection to Qdrant failed while searching'
           );
         }
       }

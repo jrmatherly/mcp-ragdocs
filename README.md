@@ -88,6 +88,27 @@ The Docker Compose setup includes:
 
 Make sure to configure your environment variables in the `.env` file before running. See the `.env.example` file for reference.
 
+### Azure OpenAI Configuration
+
+When using Azure OpenAI, you need to properly configure both chat completion and embedding models:
+
+1. **Create Model Deployments in Azure OpenAI Studio**:
+   - Deploy a chat model (e.g., `gpt-4o-mini`) for regular completions
+   - Deploy an embedding model (e.g., `text-embedding-ada-002`) for vector embeddings
+   - Note the deployment names for each model
+
+2. **Configure Environment Variables**:
+   ```bash
+   # Azure OpenAI configuration
+   AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com/"
+   AZURE_OPENAI_KEY="your-azure-api-key"
+   AZURE_OPENAI_DEPLOYMENT="gpt-4o-mini"  # Your chat model deployment name
+   AZURE_OPENAI_API_VERSION="2025-01-01-preview"
+   EMBEDDING_MODEL="text-embedding-ada-002"  # Your embedding model name
+   ```
+
+This setup ensures proper separation between chat and embedding model deployments, preventing errors during API calls.
+
 ### Usage with Claude Desktop
 
 Add this to your `claude_desktop_config.json`:
@@ -108,7 +129,7 @@ Add this to your `claude_desktop_config.json`:
         // Azure OpenAI configuration (Alternative to standard OpenAI)
         "AZURE_OPENAI_ENDPOINT": "",
         "AZURE_OPENAI_KEY": "", 
-        "AZURE_OPENAI_DEPLOYMENT": "text-embedding-ada-002",
+        "AZURE_OPENAI_DEPLOYMENT": "gpt-4o-mini", // Deployment name for your chat model
         "AZURE_OPENAI_API_VERSION": "2023-05-15",
         
         // Qdrant vector database configuration
@@ -157,6 +178,48 @@ You'll need to provide values for the following environment variables:
 - `EMBEDDING_MODEL`: Model to use for embeddings (default: "text-embedding-ada-002")
 
 ## Development
+
+### NPM Package
+
+This project is published as an npm package.
+
+To publish the package to npm, run the following command:
+
+Create an npm account if you haven't already:
+
+```bash
+npm add user
+```
+
+Login to npm:
+
+```bash
+npm login
+```
+
+Ensure package.json is properly configured:
+
+```json
+{
+  "name": "@jrmatherly/mcp-ragdocs",
+  "version": "1.4.0",
+  "private": false,
+  "files": ["build", "README.md", "LICENSE"],
+  "description": "An MCP server for semantic documentation search and retrieval using vector databases to augment LLM capabilities.",
+}
+```
+
+Publish the package:
+
+```bash
+npm publish --access public
+```
+
+For future releases, increment the version number in package.json and run:
+
+```bash
+npm publish
+```
 
 ### Code Quality
 
