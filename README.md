@@ -98,6 +98,7 @@ When using Azure OpenAI, you need to properly configure both chat completion and
    - Note the deployment names for each model
 
 2. **Configure Environment Variables**:
+
    ```bash
    # Azure OpenAI configuration
    AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com/"
