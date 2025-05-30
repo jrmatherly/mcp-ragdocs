@@ -1,9 +1,9 @@
-import { BaseTool } from './base-tool.js';
-import { ToolDefinition, McpToolResponse } from '../types.js';
-import { ApiClient } from '../api-client.js';
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
+import { ApiClient } from '../api-client.js';
+import { McpToolResponse, ToolDefinition } from '../types.js';
+import { BaseTool } from './base-tool.js';
 
-const COLLECTION_NAME = 'documentation';
+const COLLECTION_NAME = process.env.COLLECTION_NAME || 'documentation';
 
 export class RemoveDocumentationTool extends BaseTool {
   private apiClient: ApiClient;
@@ -24,11 +24,12 @@ export class RemoveDocumentationTool extends BaseTool {
             type: 'array',
             items: {
               type: 'string',
-              description: 'URL of a documentation source to remove'
+              description: 'URL of a documentation source to remove',
             },
-            description: 'Array of URLs to remove. Can be a single URL or multiple URLs.',
-            minItems: 1
-          }
+            description:
+              'Array of URLs to remove. Can be a single URL or multiple URLs.',
+            minItems: 1,
+          },
         },
         required: ['urls'],
       },
@@ -37,7 +38,10 @@ export class RemoveDocumentationTool extends BaseTool {
 
   async execute(args: { urls: string[] }): Promise<McpToolResponse> {
     if (!Array.isArray(args.urls) || args.urls.length === 0) {
-      throw new McpError(ErrorCode.InvalidParams, 'At least one URL is required');
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        'At least one URL is required'
+      );
     }
 
     if (!args.urls.every(url => typeof url === 'string')) {
@@ -50,10 +54,10 @@ export class RemoveDocumentationTool extends BaseTool {
         filter: {
           should: args.urls.map(url => ({
             key: 'url',
-            match: { value: url }
-          }))
+            match: { value: url },
+          })),
         },
-        wait: true
+        wait: true,
       });
 
       if (!['acknowledged', 'completed'].includes(result.status)) {
@@ -75,13 +79,19 @@ export class RemoveDocumentationTool extends BaseTool {
             ErrorCode.InvalidRequest,
             'Failed to authenticate with Qdrant cloud while removing documentation'
           );
-        } else if (error.message.includes('ECONNREFUSED') || error.message.includes('ETIMEDOUT')) {
+        }
+
+        if (
+          error.message.includes('ECONNREFUSED') ||
+          error.message.includes('ETIMEDOUT')
+        ) {
           throw new McpError(
             ErrorCode.InternalError,
             'Connection to Qdrant cloud failed while removing documentation'
           );
         }
       }
+      // No else needed here as previous conditions will throw
       return {
         content: [
           {

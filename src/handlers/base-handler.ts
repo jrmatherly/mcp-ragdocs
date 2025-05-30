@@ -11,5 +11,9 @@ export abstract class BaseHandler {
     this.apiClient = apiClient;
   }
 
-  protected abstract handle(args: any): Promise<McpToolResponse>;
+  // Using Record<string, unknown> instead of 'any' for better type safety
+  // while still allowing subclasses to narrow the type as needed
+  protected abstract handle(
+    args: Record<string, unknown>
+  ): Promise<McpToolResponse>;
 }

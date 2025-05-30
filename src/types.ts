@@ -10,7 +10,9 @@ export interface DocumentPayload extends DocumentChunk {
   [key: string]: unknown;
 }
 
-export function isDocumentPayload(payload: unknown): payload is DocumentPayload {
+export function isDocumentPayload(
+  payload: unknown
+): payload is DocumentPayload {
   if (!payload || typeof payload !== 'object') return false;
   const p = payload as Partial<DocumentPayload>;
   return (
@@ -27,8 +29,41 @@ export interface ToolDefinition {
   description: string;
   inputSchema: {
     type: string;
-    properties: Record<string, any>;
+    // Using a more specific type for schema properties
+    properties: Record<
+      string,
+      {
+        type?: string;
+        description?: string;
+        default?: unknown;
+        enum?: string[];
+        // Array-related properties
+        items?: {
+          type?: string;
+          description?: string;
+          enum?: string[];
+        };
+        minItems?: number;
+        maxItems?: number;
+        // Other JSON Schema property attributes
+        required?: string[];
+        format?: string;
+        minimum?: number;
+        maximum?: number;
+      }
+    >;
     required: string[];
+  };
+}
+
+export interface Source {
+  title: string;
+  url: string;
+}
+
+export interface GroupedSources {
+  [domain: string]: {
+    [subdomain: string]: Source[];
   };
 }
 

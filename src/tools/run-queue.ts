@@ -1,12 +1,12 @@
-import { BaseTool } from './base-tool.js';
-import { ToolDefinition, McpToolResponse } from '../types.js';
-import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+
 import { ApiClient } from '../api-client.js';
 import { AddDocumentationHandler } from '../handlers/add-documentation.js';
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { McpToolResponse, ToolDefinition } from '../types.js';
+import { BaseTool } from './base-tool.js';
 
 // Get current directory in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -40,7 +40,7 @@ export class RunQueueTool extends BaseTool {
     };
   }
 
-  async execute(_args: any): Promise<McpToolResponse> {
+  async execute(_args: Record<string, never>): Promise<McpToolResponse> {
     try {
       // Check if queue file exists
       try {
@@ -70,7 +70,7 @@ export class RunQueueTool extends BaseTool {
         }
 
         const currentUrl = urls[0]; // Get first URL
-        
+
         try {
           // Process the URL using the handler
           await this.addDocHandler.handle({ url: currentUrl });
@@ -83,7 +83,10 @@ export class RunQueueTool extends BaseTool {
 
         // Remove the processed URL from queue
         const remainingUrls = urls.slice(1);
-        await fs.writeFile(QUEUE_FILE, remainingUrls.join('\n') + (remainingUrls.length > 0 ? '\n' : ''));
+        await fs.writeFile(
+          QUEUE_FILE,
+          remainingUrls.join('\n') + (remainingUrls.length > 0 ? '\n' : '')
+        );
       }
 
       let resultText = `Queue processing complete.\nProcessed: ${processedCount} URLs\nFailed: ${failedCount} URLs`;

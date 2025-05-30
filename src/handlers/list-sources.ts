@@ -1,19 +1,8 @@
-import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
+import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
+import { GroupedSources, McpToolResponse, Source } from '../types.js';
 import { BaseHandler } from './base-handler.js';
-import { McpToolResponse, isDocumentPayload } from '../types.js';
 
-const COLLECTION_NAME = 'documentation';
-
-interface Source {
-  title: string;
-  url: string;
-}
-
-interface GroupedSources {
-  [domain: string]: {
-    [subdomain: string]: Source[];
-  };
-}
+const COLLECTION_NAME = process.env.COLLECTION_NAME || 'documentation';
 
 export class ListSourcesHandler extends BaseHandler {
   private groupSourcesByDomainAndSubdomain(sources: Source[]): GroupedSources {
@@ -47,7 +36,7 @@ export class ListSourcesHandler extends BaseHandler {
 
     for (const [domain, subdomains] of Object.entries(grouped)) {
       output.push(`${domainCounter}. ${domain}`);
-      
+
       // Create a Set of unique URL+title combinations
       const uniqueSources = new Map<string, Source>();
       for (const sources of Object.values(subdomains)) {
@@ -57,12 +46,15 @@ export class ListSourcesHandler extends BaseHandler {
       }
 
       // Convert to array and sort
-      const sortedSources = Array.from(uniqueSources.values())
-        .sort((a, b) => a.title.localeCompare(b.title));
+      const sortedSources = Array.from(uniqueSources.values()).sort((a, b) =>
+        a.title.localeCompare(b.title)
+      );
 
       // Use letters for subdomain entries
       sortedSources.forEach((source, index) => {
-        output.push(`${domainCounter}.${index + 1}. ${source.title} (${source.url})`);
+        output.push(
+          `${domainCounter}.${index + 1}. ${source.title} (${source.url})`
+        );
       });
 
       output.push(''); // Add blank line between domains
@@ -75,27 +67,36 @@ export class ListSourcesHandler extends BaseHandler {
   async handle(): Promise<McpToolResponse> {
     try {
       await this.apiClient.initCollection(COLLECTION_NAME);
-      
+
       const pageSize = 100;
       let offset = null;
       const sources: Source[] = [];
-      
+
       while (true) {
-        const scroll = await this.apiClient.qdrantClient.scroll(COLLECTION_NAME, {
-          with_payload: true,
-          with_vector: false,
-          limit: pageSize,
-          offset,
-        });
+        const scroll = await this.apiClient.qdrantClient.scroll(
+          COLLECTION_NAME,
+          {
+            with_payload: true,
+            with_vector: false,
+            limit: pageSize,
+            offset,
+          }
+        );
 
         if (scroll.points.length === 0) break;
-        
+
         for (const point of scroll.points) {
-          if (point.payload && typeof point.payload === 'object' && 'url' in point.payload && 'title' in point.payload) {
-            const payload = point.payload as any;
+          if (
+            point.payload &&
+            typeof point.payload === 'object' &&
+            'url' in point.payload &&
+            'title' in point.payload
+          ) {
+            // Use type assertion to properly type the payload
+            const payload = point.payload as { title: string; url: string };
             sources.push({
               title: payload.title,
-              url: payload.url
+              url: payload.url,
             });
           }
         }
@@ -133,7 +134,12 @@ export class ListSourcesHandler extends BaseHandler {
             ErrorCode.InvalidRequest,
             'Failed to authenticate with Qdrant cloud while listing sources'
           );
-        } else if (error.message.includes('ECONNREFUSED') || error.message.includes('ETIMEDOUT')) {
+        }
+
+        if (
+          error.message.includes('ECONNREFUSED') ||
+          error.message.includes('ETIMEDOUT')
+        ) {
           throw new McpError(
             ErrorCode.InternalError,
             'Connection to Qdrant cloud failed while listing sources'

@@ -1,23 +1,25 @@
 {
-  "name": "@hannesrudolph/mcp-ragdocs",
-  "version": "1.1.0",
+  "name": "@jrmatherly/mcp-ragdocs",
+  "version": "1.2.0",
   "description": "An MCP server for semantic documentation search and retrieval using vector databases to augment LLM capabilities.",
   "private": false,
   "type": "module",
   "bin": {
-    "@hannesrudolph/mcp-ragdocs": "./build/index.js"
+    "@jrmatherly/mcp-ragdocs": "./build/index.js"
   },
-  "files": [
-    "build",
-    "README.md",
-    "LICENSE"
-  ],
+  "files": ["build", "README.md", "LICENSE"],
   "scripts": {
+    "biome:check": "biome check .",
+    "biome:check:fix": "biome check --write .",
+    "biome:format:fix": "biome format --write .",
     "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
-    "prepare": "npm run build",
-    "watch": "tsc --watch",
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
-    "start": "node build/index.js"
+    "lint": "tsc --noEmit -p tsconfig.json && biome lint --diagnostic-level=error --no-errors-on-unmatched ./**/*.{js,ts}",
+    "lint:fix": "biome check --apply-unsafe ./**/*.{js,ts}",
+    "prepare": "npm run build",
+    "start": "node build/index.js",
+    "typecheck": "tsc --noEmit --incremental false",
+    "watch": "tsc --watch"
   },
   "keywords": [
     "mcp",
@@ -29,29 +31,30 @@
     "claude",
     "llm"
   ],
-  "author": "hannesrudolph",
+  "author": "jrmatherly",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hannesrudolph/mcp-ragdocs.git"
+    "url": "git+https://github.com/jrmatherly/mcp-ragdocs.git"
   },
   "bugs": {
-    "url": "https://github.com/hannesrudolph/mcp-ragdocs/issues"
+    "url": "https://github.com/jrmatherly/mcp-ragdocs/issues"
   },
-  "homepage": "https://github.com/hannesrudolph/mcp-ragdocs#readme",
+  "homepage": "https://github.com/jrmatherly/mcp-ragdocs#readme",
   "dependencies": {
     "@azure/openai": "2.0.0",
-    "@modelcontextprotocol/sdk": "1.0.3",
-    "@qdrant/js-client-rest": "1.12.0",
-    "axios": "1.7.9",
+    "@modelcontextprotocol/sdk": "1.12.1",
+    "@qdrant/js-client-rest": "1.14.1",
+    "axios": "1.9.0",
     "cheerio": "1.0.0",
-    "openai": "4.76.2",
-    "playwright": "1.49.1"
+    "openai": "5.0.1",
+    "playwright": "1.52.0"
   },
   "devDependencies": {
-    "@types/node": "^20.17.10",
+    "@biomejs/biome": "1.9.4",
+    "@types/node": "^22.15.26",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.8.3"
   },
   "publishConfig": {
     "access": "public"

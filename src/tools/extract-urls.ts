@@ -1,11 +1,11 @@
-import { BaseTool } from './base-tool.js';
-import { ToolDefinition, McpToolResponse } from '../types.js';
-import { ApiClient } from '../api-client.js';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import * as cheerio from 'cheerio';
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { ApiClient } from '../api-client.js';
+import { McpToolResponse, ToolDefinition } from '../types.js';
+import { BaseTool } from './base-tool.js';
 
 // Get current directory in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -33,7 +33,8 @@ export class ExtractUrlsTool extends BaseTool {
           },
           add_to_queue: {
             type: 'boolean',
-            description: 'If true, automatically add extracted URLs to the queue',
+            description:
+              'If true, automatically add extracted URLs to the queue',
             default: false,
           },
         },
@@ -42,12 +43,23 @@ export class ExtractUrlsTool extends BaseTool {
     };
   }
 
-  async execute(args: any): Promise<McpToolResponse> {
+  async execute(args: {
+    url: string;
+    add_to_queue?: boolean;
+  }): Promise<McpToolResponse> {
     if (!args.url || typeof args.url !== 'string') {
       throw new McpError(ErrorCode.InvalidParams, 'URL is required');
     }
 
     await this.apiClient.initBrowser();
+
+    if (!this.apiClient.browser) {
+      throw new McpError(
+        ErrorCode.InternalError,
+        'Failed to initialize browser for extracting URLs'
+      );
+    }
+
     const page = await this.apiClient.browser.newPage();
 
     try {
@@ -62,7 +74,11 @@ export class ExtractUrlsTool extends BaseTool {
           try {
             const url = new URL(href, args.url);
             // Only include URLs from the same domain to avoid external links
-            if (url.origin === new URL(args.url).origin && !url.hash && !url.href.endsWith('#')) {
+            if (
+              url.origin === new URL(args.url).origin &&
+              !url.hash &&
+              !url.href.endsWith('#')
+            ) {
               urls.add(url.href);
             }
           } catch (e) {
@@ -83,7 +99,8 @@ export class ExtractUrlsTool extends BaseTool {
           }
 
           // Append URLs to queue
-          const urlsToAdd = urlArray.join('\n') + (urlArray.length > 0 ? '\n' : '');
+          const urlsToAdd =
+            urlArray.join('\n') + (urlArray.length > 0 ? '\n' : '');
           await fs.appendFile(QUEUE_FILE, urlsToAdd);
 
           return {

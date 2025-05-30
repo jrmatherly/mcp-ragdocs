@@ -1,9 +1,8 @@
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { ApiClient } from '../api-client.js';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import { BaseHandler } from './base-handler.js';
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 // Get current directory in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -11,11 +10,7 @@ const __dirname = path.dirname(__filename);
 const QUEUE_FILE = path.join(__dirname, '..', '..', 'queue.txt');
 
 export class ListQueueHandler extends BaseHandler {
-  constructor(server: Server, apiClient: ApiClient) {
-    super(server, apiClient);
-  }
-
-  async handle(_args: any) {
+  async handle(_args: Record<string, never>) {
     try {
       // Check if queue file exists
       try {

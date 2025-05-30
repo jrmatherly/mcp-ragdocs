@@ -7,7 +7,7 @@ export class ClearQueueHandler extends ClearQueueTool {
     super();
   }
 
-		async handle(args: any) {
-				return this.execute(args);
-		}
+  async handle(args: Record<string, never>) {
+    return this.execute(args);
+  }
 }

@@ -13,7 +13,7 @@ class RagDocsServer {
     this.server = new Server(
       {
         name: 'mcp-ragdocs',
-        version: '0.1.0',
+        version: '1.2.0',
       },
       {
         capabilities: {
@@ -24,9 +24,9 @@ class RagDocsServer {
 
     this.apiClient = new ApiClient();
     this.handlerRegistry = new HandlerRegistry(this.server, this.apiClient);
-    
+
     // Error handling
-    this.server.onerror = (error) => console.error('[MCP Error]', error);
+    this.server.onerror = error => console.error('[MCP Error]', error);
     process.on('SIGINT', async () => {
       await this.cleanup();
       process.exit(0);

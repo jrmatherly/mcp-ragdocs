@@ -1,10 +1,10 @@
-import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
-import { BaseHandler } from './base-handler.js';
-import { McpToolResponse } from '../types.js';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import * as cheerio from 'cheerio';
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { McpToolResponse } from '../types.js';
+import { BaseHandler } from './base-handler.js';
 
 // Get current directory in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -12,12 +12,23 @@ const __dirname = path.dirname(__filename);
 const QUEUE_FILE = path.join(__dirname, '..', '..', 'queue.txt');
 
 export class ExtractUrlsHandler extends BaseHandler {
-  async handle(args: any): Promise<McpToolResponse> {
+  async handle(args: {
+    url: string;
+    add_to_queue?: boolean;
+  }): Promise<McpToolResponse> {
     if (!args.url || typeof args.url !== 'string') {
       throw new McpError(ErrorCode.InvalidParams, 'URL is required');
     }
 
     await this.apiClient.initBrowser();
+
+    if (!this.apiClient.browser) {
+      throw new McpError(
+        ErrorCode.InternalError,
+        'Failed to initialize browser for extracting URLs'
+      );
+    }
+
     const page = await this.apiClient.browser.newPage();
 
     try {
@@ -35,10 +46,12 @@ export class ExtractUrlsHandler extends BaseHandler {
           try {
             const url = new URL(href, args.url);
             // Only include URLs from the same documentation section
-            if (url.hostname === baseUrl.hostname && 
-                url.pathname.startsWith(basePath) && 
-                !url.hash && 
-                !url.href.endsWith('#')) {
+            if (
+              url.hostname === baseUrl.hostname &&
+              url.pathname.startsWith(basePath) &&
+              !url.hash &&
+              !url.href.endsWith('#')
+            ) {
               urls.add(url.href);
             }
           } catch (e) {
@@ -59,7 +72,8 @@ export class ExtractUrlsHandler extends BaseHandler {
           }
 
           // Append URLs to queue
-          const urlsToAdd = urlArray.join('\n') + (urlArray.length > 0 ? '\n' : '');
+          const urlsToAdd =
+            urlArray.join('\n') + (urlArray.length > 0 ? '\n' : '');
           await fs.appendFile(QUEUE_FILE, urlsToAdd);
 
           return {

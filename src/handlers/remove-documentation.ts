@@ -1,13 +1,16 @@
-import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
-import { BaseHandler } from './base-handler.js';
+import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { McpToolResponse } from '../types.js';
+import { BaseHandler } from './base-handler.js';
 
-const COLLECTION_NAME = 'documentation';
+const COLLECTION_NAME = process.env.COLLECTION_NAME || 'documentation';
 
 export class RemoveDocumentationHandler extends BaseHandler {
-  async handle(args: any): Promise<McpToolResponse> {
+  async handle(args: { urls: string[] }): Promise<McpToolResponse> {
     if (!args.urls || !Array.isArray(args.urls) || args.urls.length === 0) {
-      throw new McpError(ErrorCode.InvalidParams, 'urls must be a non-empty array');
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        'urls must be a non-empty array'
+      );
     }
 
     if (!args.urls.every((url: string) => typeof url === 'string')) {
@@ -20,10 +23,10 @@ export class RemoveDocumentationHandler extends BaseHandler {
         filter: {
           should: args.urls.map((url: string) => ({
             key: 'url',
-            match: { value: url }
-          }))
+            match: { value: url },
+          })),
         },
-        wait: true // Ensure deletion is complete before responding
+        wait: true, // Ensure deletion is complete before responding
       });
 
       if (!['acknowledged', 'completed'].includes(result.status)) {
@@ -45,13 +48,19 @@ export class RemoveDocumentationHandler extends BaseHandler {
             ErrorCode.InvalidRequest,
             'Failed to authenticate with Qdrant cloud while removing documentation'
           );
-        } else if (error.message.includes('ECONNREFUSED') || error.message.includes('ETIMEDOUT')) {
+        }
+
+        if (
+          error.message.includes('ECONNREFUSED') ||
+          error.message.includes('ETIMEDOUT')
+        ) {
           throw new McpError(
             ErrorCode.InternalError,
             'Connection to Qdrant cloud failed while removing documentation'
           );
         }
       }
+      // No else needed here as previous conditions will throw
       return {
         content: [
           {

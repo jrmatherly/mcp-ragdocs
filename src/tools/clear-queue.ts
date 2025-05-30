@@ -1,8 +1,8 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { McpToolResponse, ToolDefinition } from '../types.js';
 import { BaseTool } from './base-tool.js';
-import { ToolDefinition, McpToolResponse } from '../types.js';
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 // Get current directory in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -22,7 +22,7 @@ export class ClearQueueTool extends BaseTool {
     };
   }
 
-  async execute(_args: any): Promise<McpToolResponse> {
+  async execute(_args: Record<string, never>): Promise<McpToolResponse> {
     try {
       // Check if queue file exists
       try {
@@ -40,7 +40,9 @@ export class ClearQueueTool extends BaseTool {
 
       // Read current queue to get count of URLs being cleared
       const content = await fs.readFile(QUEUE_FILE, 'utf-8');
-      const urlCount = content.split('\n').filter(url => url.trim() !== '').length;
+      const urlCount = content
+        .split('\n')
+        .filter(url => url.trim() !== '').length;
 
       // Clear the queue by emptying the file
       await fs.writeFile(QUEUE_FILE, '');

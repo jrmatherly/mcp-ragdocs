@@ -1,7 +1,7 @@
+import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { QdrantClient } from '@qdrant/js-client-rest';
 import OpenAI from 'openai';
 import { chromium } from 'playwright';
-import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
 
 // Environment variables for configuration
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -9,17 +9,21 @@ const QDRANT_URL = process.env.QDRANT_URL;
 const QDRANT_API_KEY = process.env.QDRANT_API_KEY;
 
 if (!QDRANT_URL) {
-  throw new Error('QDRANT_URL environment variable is required for cloud storage');
+  throw new Error(
+    'QDRANT_URL environment variable is required for cloud storage'
+  );
 }
 
 if (!QDRANT_API_KEY) {
-  throw new Error('QDRANT_API_KEY environment variable is required for cloud storage');
+  throw new Error(
+    'QDRANT_API_KEY environment variable is required for cloud storage'
+  );
 }
 
 export class ApiClient {
   qdrantClient: QdrantClient;
   openaiClient?: OpenAI;
-  browser: any;
+  browser: import('playwright').Browser | null;
 
   constructor() {
     // Initialize Qdrant client with cloud configuration
@@ -27,6 +31,9 @@ export class ApiClient {
       url: QDRANT_URL,
       apiKey: QDRANT_API_KEY,
     });
+
+    // Initialize browser to null
+    this.browser = null;
 
     // Initialize OpenAI client if API key is provided
     if (OPENAI_API_KEY) {
@@ -73,7 +80,9 @@ export class ApiClient {
   async initCollection(COLLECTION_NAME: string) {
     try {
       const collections = await this.qdrantClient.getCollections();
-      const exists = collections.collections.some(c => c.name === COLLECTION_NAME);
+      const exists = collections.collections.some(
+        c => c.name === COLLECTION_NAME
+      );
 
       if (!exists) {
         await this.qdrantClient.createCollection(COLLECTION_NAME, {
@@ -96,13 +105,19 @@ export class ApiClient {
             ErrorCode.InvalidRequest,
             'Failed to authenticate with Qdrant cloud. Please check your API key.'
           );
-        } else if (error.message.includes('ECONNREFUSED') || error.message.includes('ETIMEDOUT')) {
+        }
+
+        if (
+          error.message.includes('ECONNREFUSED') ||
+          error.message.includes('ETIMEDOUT')
+        ) {
           throw new McpError(
             ErrorCode.InternalError,
             'Failed to connect to Qdrant cloud. Please check your QDRANT_URL.'
           );
         }
       }
+      // No else needed here as previous conditions will throw
       throw new McpError(
         ErrorCode.InternalError,
         `Failed to initialize Qdrant cloud collection: ${error}`

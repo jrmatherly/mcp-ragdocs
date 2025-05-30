@@ -1,20 +1,16 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { McpToolResponse, ToolDefinition } from '../types.js';
 import { BaseTool } from './base-tool.js';
-import { ToolDefinition, McpToolResponse } from '../types.js';
-import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import fs from 'fs/promises';
-import path from 'path';
 
 const QUEUE_FILE = path.join(process.cwd(), 'queue.txt');
 
 export class ListQueueTool extends BaseTool {
-  constructor() {
-    super();
-  }
-
   get definition(): ToolDefinition {
     return {
       name: 'list_queue',
-      description: 'List all URLs currently in the documentation processing queue',
+      description:
+        'List all URLs currently in the documentation processing queue',
       inputSchema: {
         type: 'object',
         properties: {},
@@ -23,7 +19,7 @@ export class ListQueueTool extends BaseTool {
     };
   }
 
-  async execute(_args: any): Promise<McpToolResponse> {
+  async execute(_args: Record<string, never>): Promise<McpToolResponse> {
     try {
       // Check if queue file exists
       try {
