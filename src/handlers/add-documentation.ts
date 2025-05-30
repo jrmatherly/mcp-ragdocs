@@ -99,8 +99,14 @@ export class AddDocumentationHandler extends BaseHandler {
     const page = await this.apiClient.browser.newPage();
 
     try {
-      await page.goto(url, { waitUntil: 'networkidle' });
+      // Using more detailed logging for debugging
+      process.stderr.write(`[Debug] Attempting to fetch URL: ${url}\n`);
+      await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
+      process.stderr.write(`[Debug] Successfully loaded page: ${url}\n`);
       const content = await page.content();
+      process.stderr.write(
+        `[Debug] Content length: ${content.length} characters\n`
+      );
       const $ = cheerio.load(content);
 
       // Remove script tags, style tags, and comments
