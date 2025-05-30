@@ -12,7 +12,7 @@
     "biome:check": "biome check .",
     "biome:check:fix": "biome check --write .",
     "biome:format:fix": "biome format --write .",
-    "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
+    "build": "tsc && node -e \"require('node:fs').chmodSync('build/index.js', '755')\"",
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
     "lint": "tsc --noEmit -p tsconfig.json && biome lint --diagnostic-level=error --no-errors-on-unmatched ./**/*.{js,ts}",
     "lint:fix": "biome check --apply-unsafe ./**/*.{js,ts}",
