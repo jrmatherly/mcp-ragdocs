@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.4.0] - 2025-05-30
+
+### Infrastructure and DevOps Improvements
+
+- Added Docker Compose setup for local development
+  - Integrated Qdrant vector database with proper configuration
+  - Added initialization container to automate collection setup
+  - Implemented API key authentication for Qdrant security
+  - Created comprehensive configuration with environment variables
+
+- Enhanced project documentation
+  - Updated README with Docker setup instructions
+  - Added detailed environment variable documentation
+  - Improved configuration guidance for both OpenAI and Azure OpenAI
+
+- Improved development setup
+  - Added proper .gitignore rules for Docker volumes
+  - Updated environment configuration examples
+  - Created consistent structure for documentation
+
+## [1.3.0] - 2025-05-30
+
+### Feature Additions
+
+- Added support for Azure OpenAI
+  - Implemented flexible provider selection between standard OpenAI and Azure OpenAI
+  - Added Azure OpenAI environment variables for configuration
+  - Updated embedding generation to work with both providers
+  - Added comprehensive documentation for Azure setup
+
 ## [1.2.0] - 2025-05-30
 
 ### Code Quality Improvements

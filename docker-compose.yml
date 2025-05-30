@@ -1,0 +1,75 @@
+services:
+  # Qdrant Vector Database for Semantic Caching
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    restart: unless-stopped
+    ports:
+      - "${QDRANT_HTTP_PORT:-6333}:6333"  # REST API
+      - "${QDRANT_GRPC_PORT:-6334}:6334"  # gRPC API
+      - "${QDRANT_DIST_PORT:-6335}:6335"  # Distributed Deployment
+    expose:
+      - 6333
+      - 6334
+      - 6335  # For distributed deployment
+    environment:
+      - QDRANT__LOG_LEVEL=${QDRANT_LOG_LEVEL:-INFO}
+      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:-your-qdrant-api-key}
+      - QDRANT__SERVICE__READ_ONLY_API_KEY=${QDRANT_READ_ONLY_API_KEY:-your-qdrant-read-only-api-key}
+      - QDRANT__SERVICE__JWT_RBAC=${QDRANT_JWT_RBAC:-false}
+      # Uncomment the following lines if you want to enable TLS
+      #- QDRANT__SERVICE__ENABLE_TLS=${QDRANT_SERVICE_ENABLE_TLS:-false}
+      #- QDRANT__TLS__CERT=${QDRANT_TLS_CERT:-./tls/cert.pem}
+      #- QDRANT__TLS__KEY=${QDRANT_TLS_KEY:-./tls/key.pem}
+    volumes:
+      - ./qdrant/storage:/qdrant/storage
+      - ./qdrant/config/production.yaml:/qdrant/config/production.yaml:ro
+      # Uncomment the following line if you want to enable TLS
+      #- ./certs:/tls
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  # Qdrant Initialization Container
+  qdrant-init:
+    image: curlimages/curl:latest
+    container_name: qdrant-init
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    environment:
+      - QDRANT_API_KEY=${QDRANT_API_KEY:-your-qdrant-api-key}
+    volumes:
+      - ./qdrant/init:/scripts:ro
+    command: |
+      sh -c '
+        echo "Waiting for Qdrant to be fully ready..."
+        sleep 5
+        
+        echo "Creating semantic_cache collection..."
+        curl -X PUT "http://qdrant:6333/collections/semantic_cache" \
+          -H "Content-Type: application/json" \
+          -H "api-key: ${QDRANT_API_KEY}" \
+          -d @/scripts/semantic_cache_collection.json
+        echo "Creating embeddings_cache collection..."
+        curl -X PUT "http://qdrant:6333/collections/embeddings_cache" \
+          -H "Content-Type: application/json" \
+          -H "api-key: ${QDRANT_API_KEY}" \
+          -d @/scripts/embeddings_cache_collection.json
+        echo "Creating request_metadata collection..."
+        curl -X PUT "http://qdrant:6333/collections/request_metadata" \
+          -H "Content-Type: application/json" \
+          -H "api-key: ${QDRANT_API_KEY}" \
+          -d @/scripts/request_metadata_collection.json
+        echo "Verifying collections..."
+        curl -s -H "api-key: ${QDRANT_API_KEY}" "http://qdrant:6333/collections" | grep -q "semantic_cache"
+        curl -s -H "api-key: ${QDRANT_API_KEY}" "http://qdrant:6333/collections" | grep -q "embeddings_cache"
+        curl -s -H "api-key: ${QDRANT_API_KEY}" "http://qdrant:6333/collections" | grep -q "request_metadata"
+        
+        echo "All Qdrant collections created successfully!"
+      '
+    restart: "no"

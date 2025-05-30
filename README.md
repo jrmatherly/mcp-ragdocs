@@ -66,6 +66,28 @@ The RAG Documentation tool is designed for:
 
 ## Configuration
 
+### Local Development with Docker
+
+This project includes a Docker Compose configuration for local development that automatically sets up a Qdrant vector database instance with proper security:
+
+```bash
+# Start the local environment
+docker-compose up -d
+
+# Check logs
+docker-compose logs -f qdrant
+
+# Stop the environment
+docker-compose down
+```
+
+The Docker Compose setup includes:
+
+1. **Qdrant Vector Database** - Configured with API key authentication
+2. **Initialization Container** - Automatically creates required collections
+
+Make sure to configure your environment variables in the `.env` file before running. See the `.env.example` file for reference.
+
 ### Usage with Claude Desktop
 
 Add this to your `claude_desktop_config.json`:
@@ -80,10 +102,22 @@ Add this to your `claude_desktop_config.json`:
         "@jrmatherly/mcp-ragdocs"
       ],
       "env": {
+        // OpenAI configuration (Standard OpenAI)
         "OPENAI_API_KEY": "",
+        
+        // Azure OpenAI configuration (Alternative to standard OpenAI)
+        "AZURE_OPENAI_ENDPOINT": "",
+        "AZURE_OPENAI_KEY": "", 
+        "AZURE_OPENAI_DEPLOYMENT": "text-embedding-ada-002",
+        "AZURE_OPENAI_API_VERSION": "2023-05-15",
+        
+        // Qdrant vector database configuration
         "QDRANT_URL": "",
         "QDRANT_API_KEY": "",
-        "COLLECTION_NAME": ""
+        
+        // Optional settings
+        "COLLECTION_NAME": "documentation",
+        "EMBEDDING_MODEL": "text-embedding-ada-002"
       }
     }
   }
@@ -96,6 +130,31 @@ You'll need to provide values for the following environment variables:
 - `QDRANT_URL`: URL of your Qdrant vector database instance
 - `QDRANT_API_KEY`: API key for authenticating with Qdrant
 - `COLLECTION_NAME`: (Optional) Name of the vector database collection (default: 'documentation')
+
+## Environment Variables
+
+### Core Configuration
+
+- `QDRANT_URL`: URL of your Qdrant vector database instance (local or cloud)
+- `QDRANT_API_KEY`: API key for authenticating with Qdrant
+
+### Provider Configuration (Choose One)
+
+#### **OpenAI (Standard)**
+
+- `OPENAI_API_KEY`: API key for OpenAI services
+
+#### **Azure OpenAI**
+
+- `AZURE_OPENAI_ENDPOINT`: Endpoint URL for Azure OpenAI services
+- `AZURE_OPENAI_KEY`: API key for Azure OpenAI
+- `AZURE_OPENAI_DEPLOYMENT`: Name of your embedding model deployment (default: "gpt-4o-mini")
+- `AZURE_OPENAI_API_VERSION`: API version to use (default: "2025-01-01-preview")
+
+### Optional Settings
+
+- `COLLECTION_NAME`: Name for vector database collection (default: "documentation")
+- `EMBEDDING_MODEL`: Model to use for embeddings (default: "text-embedding-ada-002")
 
 ## Development
 
